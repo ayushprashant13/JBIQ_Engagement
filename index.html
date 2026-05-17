@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JBIQ Engagement Operating Model</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{--bg:#08081a;--s1:#0e0e28;--s2:#161640;--s3:#1e1e52;--tx:#b8b8d4;--tx2:#7878a0;--wh:#f0f0ff;--pur:#7c3aed;--pl:#a78bfa;--pd:#3a1d8e;--gr:#10b981;--am:#f59e0b;--rd:#ef4444;--bl:#3b82f6;--cy:#06b6d4;--pk:#ec4899;--or:#f97316;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;line-height:1.6;}
+.mono{font-family:'JetBrains Mono',monospace;}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(8,8,26,0.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--s2);padding:10px 24px;display:flex;gap:16px;align-items:center;}
+nav .brand{font-size:12px;font-weight:700;color:var(--pl);letter-spacing:1px;text-transform:uppercase;}
+nav a{color:var(--tx2);font-size:11px;text-decoration:none;padding:4px 10px;border-radius:4px;transition:0.2s;}
+nav a:hover,nav a.on{color:var(--wh);background:var(--s2);}
+
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px;}
+.hero{padding:56px 24px 24px;max-width:900px;margin:0 auto;}
+.hero h1{font-size:34px;color:var(--wh);font-weight:700;line-height:1.2;margin-bottom:6px;}
+.hero h1 em{color:var(--pl);font-style:normal;}
+.hero p{font-size:13px;color:var(--tx);margin-bottom:12px;max-width:750px;}
+.refs{font-size:10px;color:var(--tx2);padding:8px 12px;background:var(--s1);border-radius:6px;border-left:3px solid var(--pd);margin-bottom:8px;}
+.refs b{color:var(--pl);}
+.tip{font-size:10px;color:var(--am);}
+
+.lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--pl);font-weight:700;margin-bottom:4px;}
+h2{font-size:20px;color:var(--wh);font-weight:700;margin-bottom:2px;}
+.sub{font-size:12px;color:var(--tx2);margin-bottom:20px;}
+.div{height:1px;background:var(--s2);margin:40px 0;}
+.sp{height:32px;}
+
+/* ===== MENTAL MAP SVG ===== */
+.map-wrap{background:var(--s1);border:1px solid var(--s2);border-radius:12px;padding:24px;margin-bottom:32px;overflow-x:auto;}
+.map-svg{display:block;margin:0 auto;}
+
+/* ===== HIERARCHY ===== */
+.hier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;}
+@media(max-width:800px){.hier-grid{grid-template-columns:1fr;}}
+.hier-col{background:var(--s1);border-radius:10px;padding:20px;border-top:3px solid var(--pur);}
+.hier-col h3{font-size:14px;color:var(--wh);margin-bottom:2px;}
+.hier-col .col-sub{font-size:10px;color:var(--tx2);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+.hier-item{margin-bottom:10px;padding:10px 12px;background:var(--s2);border-radius:6px;border-left:3px solid var(--pur);cursor:pointer;transition:0.2s;}
+.hier-item:hover{background:var(--s3);}
+.hier-item.open{background:var(--s3);border-left-width:5px;}
+.hier-item h4{font-size:12px;color:var(--wh);font-weight:700;margin-bottom:2px;position:relative;padding-right:16px;}
+.hier-item h4::after{content:'＋';position:absolute;right:0;top:0;font-size:10px;color:var(--tx2);transition:0.2s;}
+.hier-item.open h4::after{content:'－';}
+.hier-item .hi-def{font-size:10px;color:var(--tx2);}
+.hier-item .hi-detail{display:none;font-size:10px;color:var(--tx);margin-top:6px;padding-top:6px;border-top:1px dashed var(--s3);line-height:1.5;}
+.hier-item.open .hi-detail{display:block;}
+.hier-item .hi-detail b{color:var(--wh);}
+
+/* ===== VERTICAL TABS ===== */
+.vtabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;}
+.vtab{padding:5px 12px;border-radius:16px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--s3);color:var(--tx2);transition:0.2s;}
+.vtab.on{color:var(--wh);border-color:var(--pur);background:rgba(124,58,237,0.12);}
+.vtab:hover{border-color:var(--pl);}
+.vpanel{display:none;background:var(--s1);border-radius:8px;padding:16px;border-left:3px solid var(--pur);}
+.vpanel.on{display:block;}
+.vpanel h3{font-size:15px;color:var(--wh);margin-bottom:2px;}
+.vcols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0;}
+@media(max-width:600px){.vcols{grid-template-columns:1fr;}}
+.vcol{padding:10px;background:var(--s2);border-radius:6px;}
+.vcol h5{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.vcol p{font-size:11px;color:var(--tx);line-height:1.5;}
+
+/* ===== LIFECYCLE ===== */
+.lc-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:8px;}
+@media(max-width:700px){.lc-flow{grid-template-columns:1fr 1fr;}}
+.lc{background:var(--s1);padding:12px;border-top:3px solid var(--tx2);}
+.lc:first-child{border-radius:8px 0 0 8px;}
+.lc:last-child{border-radius:0 8px 8px 0;}
+.lc h4{font-size:11px;font-weight:700;color:var(--wh);margin-bottom:2px;}
+.lc .ld{font-size:9px;color:var(--tx2);margin-bottom:4px;}
+.lc .lb{font-size:10px;color:var(--tx);line-height:1.5;}
+.tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600;margin:1px;}
+.tag-p{background:rgba(124,58,237,0.2);color:var(--pl);}
+.tag-g{background:rgba(16,185,129,0.2);color:var(--gr);}
+.tag-a{background:rgba(245,158,11,0.2);color:var(--am);}
+.tag-b{background:rgba(59,130,246,0.2);color:var(--bl);}
+.tag-c{background:rgba(6,182,212,0.2);color:var(--cy);}
+.tag-k{background:rgba(236,72,153,0.2);color:var(--pk);}
+.tag-o{background:rgba(249,115,22,0.2);color:var(--or);}
+.tag-r{background:rgba(239,68,68,0.2);color:var(--rd);}
+.note{font-size:10px;color:var(--tx2);padding:8px 12px;background:var(--s1);border-radius:6px;border-left:3px solid var(--am);margin-bottom:12px;}
+.note b{color:var(--am);}
+.decay{font-size:10px;color:var(--tx2);padding:8px 12px;background:var(--s1);border-radius:6px;border-left:3px solid var(--rd);margin-bottom:20px;}
+.decay b{color:var(--rd);}
+
+/* ===== JOURNEY ===== */
+.jny{margin-bottom:40px;}
+.jh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px;}
+.jn{font-size:17px;font-weight:700;color:var(--wh);}
+.jm{font-size:10px;color:var(--tx2);}
+.jctx{font-size:10px;color:var(--tx2);padding:8px 12px;background:var(--s1);border-radius:6px;border-left:3px solid var(--gr);margin-bottom:10px;}
+.jctx b{color:var(--gr);}
+.tl{padding-left:20px;position:relative;}
+.tl::before{content:'';position:absolute;left:5px;top:0;bottom:0;width:2px;background:var(--s3);}
+.ti{position:relative;margin-bottom:14px;}
+.td{position:absolute;left:-18px;top:4px;width:8px;height:8px;border-radius:50%;border:2px solid var(--pur);background:var(--bg);}
+.tday{font-size:10px;font-weight:700;}
+.ttl{font-size:12px;font-weight:700;color:var(--wh);margin-bottom:2px;}
+.tbody{font-size:10px;color:var(--tx);margin-bottom:4px;line-height:1.5;}
+.ttags{display:flex;flex-wrap:wrap;gap:3px;}
+
+.close{padding:12px 16px;background:var(--s1);border:1px solid var(--pd);border-radius:8px;margin-bottom:20px;}
+.close h4{font-size:12px;font-weight:700;color:var(--pl);margin-bottom:4px;}
+.close p{font-size:13px;color:var(--wh);font-weight:700;line-height:1.4;}
+.close p span{font-weight:400;font-size:11px;color:var(--tx);}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media(max-width:600px){
+  nav{padding:8px 12px;gap:8px;}
+  nav .brand{font-size:10px;letter-spacing:0.5px;}
+  nav a{font-size:10px;padding:3px 6px;}
+  
+  .hero{padding:40px 16px 20px;}
+  .hero h1{font-size:24px;}
+  .hero p{font-size:12px;}
+  .refs{font-size:9px;padding:6px 10px;}
+  .tip{font-size:9px;}
+  
+  .wrap{padding:0 16px;}
+  .sec{padding:0 16px;}
+  h2{font-size:17px;}
+  .sub{font-size:11px;}
+  .div{margin:28px 0;}
+  .sp{height:20px;}
+  
+  /* SVG map — allow horizontal scroll on mobile */
+  .map-wrap{padding:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .map-svg{min-width:700px;}
+  
+  /* Definition boxes stack */
+  .hero + .wrap > div[style*="grid-template-columns:1fr 1fr"]{
+    grid-template-columns:1fr !important;
+  }
+  
+  /* Hierarchy columns stack */
+  .hier-grid{grid-template-columns:1fr !important;}
+  .hier-col{padding:14px;}
+  .hier-item{padding:8px 10px;}
+  .hier-item h4{font-size:11px;}
+  .hier-item .hi-def{font-size:9px;}
+  .hier-item .hi-detail{font-size:9px;}
+  
+  /* Vertical tabs smaller */
+  .vtabs{gap:3px;}
+  .vtab{padding:4px 10px;font-size:9px;}
+  .vpanel{padding:12px;}
+  .vpanel h3{font-size:13px;}
+  .vcols{grid-template-columns:1fr !important;gap:8px;}
+  .vcol{padding:8px;}
+  .vcol p{font-size:10px;}
+  
+  /* Lifecycle stack on small mobile */
+  .lc-flow{grid-template-columns:1fr !important;gap:6px;}
+  .lc{border-radius:6px !important;border-left:3px solid;border-top:none !important;}
+  .lc h4{font-size:10px;}
+  .lc .ld{font-size:8px;}
+  .lc .lb{font-size:9px;}
+  .tag{font-size:7px;padding:1px 4px;}
+  
+  /* Re-engagement grid stack */
+  div[style*="grid-template-columns:1fr 1fr"]{
+    grid-template-columns:1fr !important;
+  }
+  
+  /* Journey sections */
+  .jn{font-size:15px;}
+  .jm{font-size:9px;}
+  .jctx{font-size:9px;padding:8px 10px;}
+  .tl{padding-left:18px;}
+  .td{left:-16px;width:7px;height:7px;}
+  .tday{font-size:9px;}
+  .ttl{font-size:11px;}
+  .tbody{font-size:9px;}
+  .tl-tag,.tag{font-size:7.5px;}
+  
+  /* Note and decay boxes */
+  .note,.decay,.def-box{font-size:9px;padding:6px 10px;}
+  
+  /* Indicator grid */
+  div[style*="grid-template-columns:100px 1fr"]{
+    grid-template-columns:80px 1fr !important;
+  }
+}
+
+/* Tablet tweaks */
+@media(min-width:601px) and (max-width:900px){
+  .hero h1{font-size:28px;}
+  .hier-grid{grid-template-columns:1fr !important;}
+  .map-svg{min-width:600px;}
+}
+</style>
+</head>
+<body>
+
+<nav id="topnav">
+  <div class="brand">JBIQ Engagement Operating Model</div>
+  <a href="#map" data-s="map">Map</a>
+  <a href="#formula" data-s="formula">Formula</a>
+  <a href="#hierarchy" data-s="hierarchy">Building Blocks</a>
+  <a href="#verticals" data-s="verticals">Verticals</a>
+  <a href="#lifecycle" data-s="lifecycle">Lifecycle</a>
+  <a href="#reengage" data-s="reengage">Re-engagement</a>
+  <a href="#journeys" data-s="journeys">Journeys</a>
+</nav>
+
+<div class="hero">
+  <h1>From Zero Intent <em>to Ritual</em></h1>
+  <p>A mental map for JBIQ engagement — combining the CLM strategy, engagement design work, cohort analysis, and behavioural science research into one connected operating model. What every concept means, how they link, and what the journey looks like for real Bharat users from D0 to D30.</p>
+  <div class="tip">💡 Most cards and tags are clickable — expand for details. Map nodes scroll to their sections. Vertical tabs switch content.</div>
+</div>
+
+<!-- ===== MENTAL MAP ===== -->
+<div class="wrap" id="map">
+<div class="lbl">The System View</div>
+<h2>Mental Map</h2>
+<div class="sub">The full hierarchy. Click any box to jump to its section.</div>
+
+<div class="map-wrap">
+<svg class="map-svg" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:900px;height:auto;">
+  <!-- Connectors -->
+  <line x1="450" y1="54" x2="450" y2="80" stroke="#1e1e52" stroke-width="2"/>
+  <line x1="450" y1="132" x2="450" y2="160" stroke="#1e1e52" stroke-width="2"/>
+  <!-- Cycle to 3 columns -->
+  <line x1="450" y1="212" x2="450" y2="240" stroke="#1e1e52" stroke-width="2"/>
+  <line x1="150" y1="252" x2="750" y2="252" stroke="#1e1e52" stroke-width="1" stroke-dasharray="4"/>
+  <line x1="150" y1="252" x2="150" y2="262" stroke="#1e1e52" stroke-width="2"/>
+  <line x1="450" y1="252" x2="450" y2="262" stroke="#1e1e52" stroke-width="2"/>
+  <line x1="750" y1="252" x2="750" y2="262" stroke="#1e1e52" stroke-width="2"/>
+  <!-- Columns to stages -->
+  <line x1="450" y1="372" x2="450" y2="392" stroke="#1e1e52" stroke-width="2"/>
+  <!-- Stages to verticals -->
+  <line x1="450" y1="440" x2="450" y2="455" stroke="#1e1e52" stroke-width="2"/>
+
+  <!-- LEVEL 0: Definition -->
+  <rect x="250" y="6" width="400" height="48" rx="8" fill="#12122a" stroke="#7c3aed" stroke-width="1.5" style="cursor:pointer" onclick="document.getElementById('formula').scrollIntoView({behavior:'smooth'})"/>
+  <text x="450" y="24" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="700" font-family="DM Sans">ENGAGEMENT DEFINITION</text>
+  <text x="450" y="38" text-anchor="middle" fill="#b8b8d4" font-size="9" font-family="JetBrains Mono">E = Session Depth × DAU/MAU</text>
+  <text x="450" y="50" text-anchor="middle" fill="#7878a0" font-size="7.5" font-family="DM Sans">Indicators: Frequency · Value · Depth · Breadth · Moat</text>
+
+  <!-- LEVEL 1: Hook Cycle -->
+  <rect x="180" y="80" width="540" height="52" rx="8" fill="#12122a" stroke="#4c2889" stroke-width="1"/>
+  <text x="450" y="98" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="700" font-family="DM Sans">THE HABIT CYCLE</text>
+  <text x="450" y="116" text-anchor="middle" fill="#b8b8d4" font-size="9" font-family="DM Sans" style="cursor:pointer" onclick="document.getElementById('formula').scrollIntoView({behavior:'smooth'})">
+    Motivation → Trigger → Ability × Friction⁻¹ → Reward (variable) → Investment → ↻ repeats
+  </text>
+
+  <!-- LEVEL 2: Three Columns -->
+  <!-- Col 1: WHAT (Value) -->
+  <rect x="50" y="162" width="200" height="36" rx="6" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" stroke-width="1"/>
+  <text x="150" y="177" text-anchor="middle" fill="#7c3aed" font-size="9" font-weight="700" font-family="DM Sans">WHAT — Value Created</text>
+  <text x="150" y="192" text-anchor="middle" fill="#b8b8d4" font-size="8" font-family="DM Sans">Sets priorities</text>
+
+  <!-- Col 2: HOW (Patterns) -->
+  <rect x="350" y="162" width="200" height="36" rx="6" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" stroke-width="1"/>
+  <text x="450" y="177" text-anchor="middle" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Sans">HOW — Recurring Patterns</text>
+  <text x="450" y="192" text-anchor="middle" fill="#b8b8d4" font-size="8" font-family="DM Sans">Defines execution rhythm</text>
+
+  <!-- Col 3: WHERE (Delivery) -->
+  <rect x="650" y="162" width="200" height="36" rx="6" fill="rgba(59,130,246,0.15)" stroke="#3b82f6" stroke-width="1"/>
+  <text x="750" y="177" text-anchor="middle" fill="#3b82f6" font-size="9" font-weight="700" font-family="DM Sans">WHERE — Delivery + Moat</text>
+  <text x="750" y="192" text-anchor="middle" fill="#b8b8d4" font-size="8" font-family="DM Sans">Surfaces + intelligence</text>
+
+  <!-- WHAT sub-items -->
+  <g style="cursor:pointer" onclick="document.getElementById('hierarchy').scrollIntoView({behavior:'smooth'})">
+    <rect x="55" y="262" width="190" height="100" rx="6" fill="#0e0e28"/>
+    <rect x="55" y="262" width="3" height="100" rx="1" fill="#7c3aed"/>
+    <text x="72" y="280" fill="#a78bfa" font-size="9" font-weight="700" font-family="DM Sans">HVA Classes (5)</text>
+    <text x="72" y="296" fill="#7878a0" font-size="8" font-family="DM Sans">1. Value Realisation</text>
+    <text x="72" y="310" fill="#7878a0" font-size="8" font-family="DM Sans">2. Commitment</text>
+    <text x="72" y="324" fill="#7878a0" font-size="8" font-family="DM Sans">3. Investment</text>
+    <text x="72" y="338" fill="#7878a0" font-size="8" font-family="DM Sans">4. Distribution</text>
+    <text x="72" y="352" fill="#7878a0" font-size="8" font-family="DM Sans">5. Expansion</text>
+  </g>
+
+  <!-- HOW sub-items -->
+  <g style="cursor:pointer" onclick="document.getElementById('hierarchy').scrollIntoView({behavior:'smooth'})">
+    <rect x="290" y="262" width="140" height="100" rx="6" fill="#0e0e28"/>
+    <rect x="290" y="262" width="3" height="100" rx="1" fill="#f59e0b"/>
+    <text x="307" y="280" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Sans">Loops (5)</text>
+    <text x="307" y="296" fill="#7878a0" font-size="8" font-family="DM Sans">Daily</text>
+    <text x="307" y="310" fill="#7878a0" font-size="8" font-family="DM Sans">Event-based</text>
+    <text x="307" y="324" fill="#7878a0" font-size="8" font-family="DM Sans">Task-based</text>
+    <text x="307" y="338" fill="#7878a0" font-size="8" font-family="DM Sans">Life (aspiration)</text>
+    <text x="307" y="352" fill="#7878a0" font-size="8" font-family="DM Sans">Episodic (trust)</text>
+  </g>
+
+  <g style="cursor:pointer" onclick="document.getElementById('hierarchy').scrollIntoView({behavior:'smooth'})">
+    <rect x="470" y="262" width="140" height="100" rx="6" fill="#0e0e28"/>
+    <rect x="470" y="262" width="3" height="100" rx="1" fill="#f59e0b"/>
+    <text x="487" y="280" fill="#f59e0b" font-size="9" font-weight="700" font-family="DM Sans">Hooks (4)</text>
+    <text x="487" y="296" fill="#7878a0" font-size="8" font-family="DM Sans">Task-triggered</text>
+    <text x="487" y="310" fill="#7878a0" font-size="8" font-family="DM Sans">Scheduled</text>
+    <text x="487" y="324" fill="#7878a0" font-size="8" font-family="DM Sans">Event</text>
+    <text x="487" y="338" fill="#7878a0" font-size="8" font-family="DM Sans">Behavioural</text>
+  </g>
+
+  <!-- WHERE sub-items -->
+  <g style="cursor:pointer" onclick="document.getElementById('hierarchy').scrollIntoView({behavior:'smooth'})">
+    <rect x="655" y="262" width="190" height="100" rx="6" fill="#0e0e28"/>
+    <rect x="655" y="262" width="3" height="100" rx="1" fill="#3b82f6"/>
+    <text x="672" y="280" fill="#3b82f6" font-size="9" font-weight="700" font-family="DM Sans">Delivery + Moat</text>
+    <text x="672" y="296" fill="#7878a0" font-size="8" font-family="DM Sans">Channels (PN/WA/In-app/Voice)</text>
+    <text x="672" y="310" fill="#7878a0" font-size="8" font-family="DM Sans">Homepage → "Today for Me"</text>
+    <text x="672" y="324" fill="#7878a0" font-size="8" font-family="DM Sans">Gamification (streaks/progress)</text>
+    <text x="672" y="338" fill="#7878a0" font-size="8" font-family="DM Sans">N=1 Personalisation + NBA</text>
+    <text x="672" y="352" fill="#7878a0" font-size="8" font-family="DM Sans">(UCP + Memory + Decisioning)</text>
+  </g>
+
+  <!-- LEVEL 3: Lifecycle -->
+  <g style="cursor:pointer" onclick="document.getElementById('lifecycle').scrollIntoView({behavior:'smooth'})">
+    <rect x="100" y="392" width="140" height="36" rx="5" fill="rgba(136,136,168,0.08)" stroke="#7878a0" stroke-width="0.5"/>
+    <text x="170" y="407" text-anchor="middle" fill="#b8b8d4" font-size="8" font-weight="700" font-family="DM Sans">Onboarded</text>
+    <text x="170" y="420" text-anchor="middle" fill="#7878a0" font-size="7" font-family="DM Sans">D0 · Orient+Activate</text>
+  </g>
+  <text x="248" y="412" fill="#1e1e52" font-size="12">→</text>
+  <g style="cursor:pointer" onclick="document.getElementById('lifecycle').scrollIntoView({behavior:'smooth'})">
+    <rect x="262" y="392" width="140" height="36" rx="5" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="0.5"/>
+    <text x="332" y="407" text-anchor="middle" fill="#10b981" font-size="8" font-weight="700" font-family="DM Sans">Activated → Engaged</text>
+    <text x="332" y="420" text-anchor="middle" fill="#7878a0" font-size="7" font-family="DM Sans">D1-D7 · Habit seed</text>
+  </g>
+  <text x="410" y="412" fill="#1e1e52" font-size="12">→</text>
+  <g style="cursor:pointer" onclick="document.getElementById('lifecycle').scrollIntoView({behavior:'smooth'})">
+    <rect x="424" y="392" width="140" height="36" rx="5" fill="rgba(59,130,246,0.08)" stroke="#3b82f6" stroke-width="0.5"/>
+    <text x="494" y="407" text-anchor="middle" fill="#3b82f6" font-size="8" font-weight="700" font-family="DM Sans">Engaged → Retained</text>
+    <text x="494" y="420" text-anchor="middle" fill="#7878a0" font-size="7" font-family="DM Sans">D7-D14 · Moat</text>
+  </g>
+  <text x="572" y="412" fill="#1e1e52" font-size="12">→</text>
+  <g style="cursor:pointer" onclick="document.getElementById('lifecycle').scrollIntoView({behavior:'smooth'})">
+    <rect x="586" y="392" width="110" height="36" rx="5" fill="rgba(124,58,237,0.08)" stroke="#7c3aed" stroke-width="0.5"/>
+    <text x="641" y="407" text-anchor="middle" fill="#a78bfa" font-size="8" font-weight="700" font-family="DM Sans">Retained</text>
+    <text x="641" y="420" text-anchor="middle" fill="#7878a0" font-size="7" font-family="DM Sans">D14-D30+ · Compound</text>
+  </g>
+  <text x="704" y="412" fill="#ef4444" font-size="8">↘ decay</text>
+  <rect x="740" y="396" width="100" height="28" rx="4" fill="rgba(239,68,68,0.08)" stroke="#ef4444" stroke-width="0.5"/>
+  <text x="790" y="414" text-anchor="middle" fill="#ef4444" font-size="7" font-family="DM Sans">Re-engage→Churn</text>
+
+  <!-- LEVEL 4: Verticals -->
+  <g style="cursor:pointer" onclick="document.getElementById('verticals').scrollIntoView({behavior:'smooth'})">
+    <rect x="50" y="455" width="800" height="52" rx="8" fill="#0e0e28" stroke="#1e1e52" stroke-width="1"/>
+    <text x="450" y="472" text-anchor="middle" fill="#a78bfa" font-size="9" font-weight="700" font-family="DM Sans">10 VERTICALS × LOOP TYPES → PERSONA JOURNEYS (D0–D30)</text>
+    <text x="86" y="496" fill="#7c3aed" font-size="8" font-family="DM Sans">Astro</text>
+    <text x="86" y="505" fill="#7878a0" font-size="7" font-family="DM Sans">Daily</text>
+    <text x="172" y="496" fill="#f97316" font-size="8" font-family="DM Sans">Devotion</text>
+    <text x="172" y="505" fill="#7878a0" font-size="7" font-family="DM Sans">Daily+Event</text>
+    <text x="270" y="496" fill="#10b981" font-size="8" font-family="DM Sans">Cricket</text>
+    <text x="270" y="505" fill="#7878a0" font-size="7" font-family="DM Sans">Event</text>
+    <text x="350" y="496" fill="#06b6d4" font-size="8" font-family="DM Sans">News</text>
+    <text x="350" y="505" fill="#7878a0" font-size="7" font-family="DM Sans">Daily</text>
+    <text x="420" y="496" fill="#ef4444" font-size="8" font-family="DM Sans">Health</text>
+    <text x="420" y="505" fill="#7878a0" font-size="7" font-family="DM Sans">Task</text>
+    <text x="492" y="496" fill="#3b82f6" font-size="8" font-family="DM Sans">Careers</text>
+    <text x="492" y="505" fill="#7878a0" font-size="7" font-family="DM Sans">Life</text>
+    <text x="565" y="496" fill="#f59e0b" font-size="8" font-family="DM Sans">Govt</text>
+    <text x="565" y="505" fill="#7878a0" font-size="7" font-family="DM Sans">Episodic</text>
+    <text x="635" y="496" fill="#7878a0" font-size="8" font-family="DM Sans">Entertain</text>
+    <text x="635" y="505" fill="#7878a0" font-size="7" font-family="DM Sans">Event</text>
+    <text x="720" y="496" fill="#7878a0" font-size="8" font-family="DM Sans">Local Svc</text>
+    <text x="720" y="505" fill="#7878a0" font-size="7" font-family="DM Sans">Episodic</text>
+    <text x="800" y="496" fill="#7878a0" font-size="8" font-family="DM Sans">Assistant</text>
+    <text x="800" y="505" fill="#7878a0" font-size="7" font-family="DM Sans">On-demand</text>
+  </g>
+</svg>
+</div>
+</div>
+
+<div class="div"></div>
+
+<!-- ===== FORMULA ===== -->
+<div class="wrap" id="formula">
+<div class="lbl">Definition</div>
+<h2>Engagement — Measured and Felt</h2>
+<div class="sub">Engagement has a number and a behaviour. The number tells us if it's working. The behaviour tells us why.</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 16px;">
+  <div style="background:var(--s1);border-radius:8px;padding:16px;border-left:3px solid var(--pur);">
+    <div style="font-size:9px;color:var(--tx2);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px;">Mathematical</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--wh);font-weight:500;"><span style="color:var(--pl)">E</span> = Session Depth × <span style="color:var(--pl)">DAU / MAU</span></div>
+    <div style="font-size:10px;color:var(--tx2);margin-top:6px;">DAU = app open. Session depth = f(time spent, turns completed). Target: DAU/MAU ≥40% at GA+60. This is the health check — if the number moves, we dig into the behaviour model below to find out why.</div>
+  </div>
+  <div style="background:var(--s1);border-radius:8px;padding:16px;border-left:3px solid var(--am);">
+    <div style="font-size:9px;color:var(--tx2);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px;">Psychological — the Habit Cycle</div>
+    <div style="font-size:12px;color:var(--wh);font-weight:500;line-height:1.7;">
+      <span style="color:var(--pl)">Motivation</span> (why they care) →
+      <span style="color:var(--am)">Trigger</span> (what brings them) →
+      <span style="color:var(--gr)">Ability × Low Friction</span> (can they act) →
+      <span style="color:var(--or)">Variable Reward</span> (what they get) →
+      <span style="color:var(--pk)">Investment</span> (loads the next trigger) → ↻ repeats
+    </div>
+  </div>
+</div>
+
+<div style="background:var(--s1);border-radius:10px;padding:18px;margin-bottom:16px;border:1px solid var(--s2);">
+  <div style="font-size:12px;color:var(--wh);font-weight:700;margin-bottom:10px;">What indicates engagement is working</div>
+  <div style="display:grid;grid-template-columns:100px 1fr;gap:0;font-size:11px;line-height:1.6;">
+    <div style="padding:6px 10px;color:var(--pl);font-weight:700;border-bottom:1px solid var(--s3);">Frequency</div>
+    <div style="padding:6px 10px;color:var(--tx);border-bottom:1px solid var(--s3);">DAU/MAU, D7 return, D30 return. Retention = the defined behaviour is repeated in trailing 7-day windows.</div>
+    <div style="padding:6px 10px;color:var(--or);font-weight:700;border-bottom:1px solid var(--s3);">Value</div>
+    <div style="padding:6px 10px;color:var(--tx);border-bottom:1px solid var(--s3);">Successful task completion, repeat of same use case, user-rated helpfulness.</div>
+    <div style="padding:6px 10px;color:var(--gr);font-weight:700;border-bottom:1px solid var(--s3);">Depth</div>
+    <div style="padding:6px 10px;color:var(--tx);border-bottom:1px solid var(--s3);">Multi-turn completion, saved context, task continuation across sessions.</div>
+    <div style="padding:6px 10px;color:var(--cy);font-weight:700;border-bottom:1px solid var(--s3);">Breadth</div>
+    <div style="padding:6px 10px;color:var(--tx);border-bottom:1px solid var(--s3);">Domains used, cross-domain progression.</div>
+    <div style="padding:6px 10px;color:var(--pk);font-weight:700;">Moat</div>
+    <div style="padding:6px 10px;color:var(--tx);">Memory created, reminders set, family profiles, saved preferences — accumulated switching cost.</div>
+  </div>
+</div>
+
+<div style="background:var(--s1);border-radius:10px;padding:18px;margin-bottom:16px;border:1px solid var(--s2);">
+  <div style="font-size:12px;color:var(--wh);font-weight:700;margin-bottom:8px;">How this cycle maps to everything below</div>
+  <div style="font-size:11px;color:var(--tx);line-height:1.7;">
+    The user already has a <b style="color:var(--pl)">Motivation</b> — anxiety ("aaj ka din kaisa?"), aspiration (exam prep), ritual need (morning puja), or practical urgency (scheme deadline). JBIQ doesn't create it, it meets it.
+    
+    Then a <b style="color:var(--am)">Trigger</b> fires. This can be external — a push notification, a WhatsApp message, a festival on the calendar — or it can be internal: the user's own felt need. Kavita opens JBIQ at 6 AM not because a notification told her to, but because not checking feels incomplete. That internal trigger is the goal — external triggers (Hooks in the building blocks below) are the scaffolding that builds toward it.
+    
+    The user acts if <b style="color:var(--gr)">Ability is high and Friction is low</b> — voice-first, one-tap, regional language, no blank prompts. These are design decisions in Channels and Homepage surfaces.
+    
+    The action delivers a <b style="color:var(--or)">Variable Reward</b> — reassurance, progress, clarity, social currency. Variable is key: rashifal works because each day is different. Predictable = boring. This is what makes each Loop (daily, event, task) feel worth repeating.
+    
+    Finally, the user makes an <b style="color:var(--pk)">Investment</b> — DOB for kundli, resume for prep, family profiles for household tracking — that makes tomorrow's experience better and leaving costlier. This maps to the HVA sequence: Value Realisation → Commitment → Investment → Distribution → Expansion. Each cycle enriches the next. By Day 30, the accumulated investment IS the moat — powered by N=1 Personalisation.
+  </div>
+</div>
+
+<div class="sub" style="font-size:10px;color:var(--tx2);margin-bottom:16px;">Click any element below to see how it applies to different Bharat segments.</div>
+</div>
+
+<div class="div"></div>
+
+<!-- ===== HIERARCHY: BUILDING BLOCKS ===== -->
+<div class="wrap" id="hierarchy">
+<div class="lbl">Building Blocks — in priority hierarchy</div>
+<h2>WHAT → HOW → WHERE</h2>
+<div class="sub">Three axes of execution. WHAT sets priorities. HOW defines rhythm. WHERE delivers and compounds.</div>
+
+<div class="hier-grid">
+  <!-- WHAT -->
+  <div class="hier-col" style="border-color:var(--pur);">
+    <h3 style="color:var(--pur);">WHAT — Value Created</h3>
+    <div class="col-sub" style="color:var(--pur);">HVA Classes · Sets priorities</div>
+    <div class="hier-item" style="border-color:var(--pur)" onclick="toggleCard(this)"><h4>1. Value Realisation</h4><div class="hi-def">First useful outcome. The "aha moment."</div><div class="hi-detail"><b>Stage 1.</b> Must happen first session. If fails = highest-priority NVA, likely permanent churn. <b>Ref (Hacking Growth):</b> aha moment = must-have status.</div></div>
+    <div class="hier-item" style="border-color:var(--pur)" onclick="toggleCard(this)"><h4>2. Commitment</h4><div class="hi-def">Persistent task. Recurring pull created.</div><div class="hi-detail"><b>Stage 1-2.</b> Post-task, one tap. Every task arc must include commitment BEFORE resolution — or value exhaustion hits.</div></div>
+    <div class="hier-item" style="border-color:var(--pk)" onclick="toggleCard(this)"><h4>3. Investment</h4><div class="hi-def">User context → better product → switching cost.</div><div class="hi-detail"><b>Stage 2-3. NOT Stage 1.</b> DOB post 3rd. Resume post 1st practice. Declined → suppress 7d. Stored value makes the product better with use and harder to leave.</div></div>
+    <div class="hier-item" style="border-color:var(--bl)" onclick="toggleCard(this)"><h4>4. Distribution</h4><div class="hi-def">User shares. Advocacy + acquisition.</div><div class="hi-detail">At peak value moments, not referral prompts. Every share preserves context + language + next action for recipient.</div></div>
+    <div class="hier-item" style="border-color:var(--cy)" onclick="toggleCard(this)"><h4>5. Expansion</h4><div class="hi-def">2nd+ domain. 3-4× retention lift.</div><div class="hi-detail">In-app ONLY. Never push/WA. Suppress after 3 ignored. One domain well > three resented.</div></div>
+  </div>
+
+  <!-- HOW -->
+  <div class="hier-col" style="border-color:var(--am);">
+    <h3 style="color:var(--am);">HOW — Recurring Patterns</h3>
+    <div class="col-sub" style="color:var(--am);">Loops + Hooks · Defines execution rhythm</div>
+    <div class="hier-item" style="border-color:var(--am)" onclick="toggleCard(this)"><h4>Daily Loop</h4><div class="hi-def">Same time, same action, every day. Rashifal, panchang, digest.</div><div class="hi-detail">Under 60s. Forgiving streak (5/7). Anchored to morning/evening rhythm. <b>Verticals:</b> Astrology, Devotion, News.</div></div>
+    <div class="hier-item" style="border-color:var(--am)" onclick="toggleCard(this)"><h4>Event Loop</h4><div class="hi-def">External moment fires trigger. Match, festival, deadline.</div><div class="hi-detail">Stronger than app-generated triggers. Seasonal intensity. <b>Verticals:</b> Cricket, Entertainment, Devotion (festivals). <b>Ref (Dream11):</b> real-world urgency.</div></div>
+    <div class="hier-item" style="border-color:var(--am)" onclick="toggleCard(this)"><h4>Task Loop</h4><div class="hi-def">Persistent multi-day task. Dose, refill, status.</div><div class="hi-detail">High-stakes. Adherence tracked, not streak-punished. <b>Verticals:</b> Health, Govt (deadline tracking).</div></div>
+    <div class="hier-item" style="border-color:var(--am)" onclick="toggleCard(this)"><h4>Life Loop</h4><div class="hi-def">Aspiration-driven. Progress visible over weeks.</div><div class="hi-detail">Hard deadline creates urgency. Score improvement drives return. Weekly consistency. <b>Verticals:</b> Jobs, Career prep, Education.</div></div>
+    <div class="hier-item" style="border-color:var(--am)" onclick="toggleCard(this)"><h4>Episodic Loop</h4><div class="hi-def">Low frequency, high trust. 5-7 day gaps normal.</div><div class="hi-detail">Returns when task fires, not daily. Trust not habit. <b>Verticals:</b> Govt Schemes, Local Services. Strongest WOM when payout lands.</div></div>
+    <div style="height:8px"></div>
+    <div class="hier-item" style="border-color:var(--or)" onclick="toggleCard(this)"><h4>Hooks (pull-back mechanisms)</h4><div class="hi-def">4 types: Task-triggered, Scheduled, Event, Behavioural (streak/lapse).</div><div class="hi-detail"><b>Task:</b> PN→WA escalation for high-stakes. <b>Scheduled:</b> 6 AM rashifal, evening digest. <b>Event:</b> match toss, festival, deadline. <b>Behavioural:</b> streak at risk, score dropped. External triggers evolve into internal triggers — the goal is the user opens without being prompted.</div></div>
+  </div>
+
+  <!-- WHERE -->
+  <div class="hier-col" style="border-color:var(--bl);">
+    <h3 style="color:var(--bl);">WHERE — Delivery + Moat</h3>
+    <div class="col-sub" style="color:var(--bl);">Surfaces + Intelligence · Compounds over time</div>
+    <div class="hier-item" style="border-color:var(--bl)" onclick="toggleCard(this)"><h4>Channels</h4><div class="hi-def">PN (default, ~20% OEM delivery) → WA (task-escalation) → In-app (discovery) → Voice (cross-cutting C/D).</div><div class="hi-detail">OEM-segmented delivery = first-class metric. WA: send value, not reminder. Interest-inferred: NEVER WA. Voice: primary mode for C/D — amplifies every lever.</div></div>
+    <div class="hier-item" style="border-color:var(--cy)" onclick="toggleCard(this)"><h4>Homepage → "Today for Me"</h4><div class="hi-def">9 surfaces. Evolves from persona-first (New) to personalised daily briefing (Retained). Click to see all surfaces.</div><div class="hi-detail">
+      <div style="margin-bottom:6px;"><b style="color:var(--cy)">Surfaces (in priority order by lifecycle state):</b></div>
+      <div style="margin-bottom:4px;"><b>① Updates</b> — priority anchor for action-today items. "Bill due in 3 days." "Vrat tomorrow." Hidden at D0, active when something is actionable. <span style="color:var(--tx2)">Like Swiggy's active order card or Meesho's order status — time-sensitive at the top, always.</span></div>
+      <div style="margin-bottom:4px;"><b>② Continue</b> — unfinished threads. Resume tasks. Progress bars. "Aapki prescription pending hai." Active D7+ when tasks exist. <span style="color:var(--tx2)">PhonePe shows incomplete KYC / pending transfers prominently. Respects user's unfinished business.</span></div>
+      <div style="margin-bottom:4px;"><b>③ Value Ribbon</b> — persistent proof of value: "Saved ₹X, Y tasks completed." Builds over time. <span style="color:var(--tx2)">CRED shows cashback earned. Makes accumulated value visible. CTA: tap → full recap of what you've done and saved.</span></div>
+      <div style="margin-bottom:4px;"><b>④ Your Assistants</b> — 12 domain avatars, signal-ordered. Always visible, never cold. Entry to verticals. <span style="color:var(--tx2)">D0: ordered by cohort affinity (Seg C F 35-50 → Astro first). D30: ordered by usage frequency. The reorder itself is the personalisation signal.</span></div>
+      <div style="margin-bottom:4px;"><b>⑤ For You</b> — personalised feed. 3-5 cards. Variants: vertical content, partner offers, predictions, alerts, local relevance. <span style="color:var(--tx2)">Dream11 shows match cards with countdown timers — time-pressure CTAs. Each card should have a specific CTA: "Dekhein" / "Set reminder" / "Check now" — not generic "Open."</span></div>
+      <div style="margin-bottom:4px;"><b>⑥ Discover</b> — surface unfound value. Must feel earned, not pushed. 3 items, rotating. Hidden when nothing earns the slot. <span style="color:var(--tx2)">JioSaavn's "Made for You" sits below active content. Discovery is always below active tasks/updates — never above.</span></div>
+      <div style="margin-bottom:4px;"><b>⑦ Moments</b> — shareable celebrations. Festival wishes, streak milestones. WhatsApp share CTA. Active at milestones and festivals. <span style="color:var(--tx2)">Templates need editable last line to feel personal, not corporate.</span></div>
+      <div style="margin-bottom:4px;"><b>⑧ Recap/missed</b> — "Since you were away: 3 rashifals, 1 vrat, scheme deadline passed." For returning users (7+ day gap). Shows what the product did while they weren't there. <span style="color:var(--tx2)">Spotify Wrapped principle: personal history as value. But daily-scale: what you missed, not what you did.</span></div>
+      <div style="margin-bottom:4px;"><b>⑨ Multimodal Input</b> — voice, text, image, doc. Always visible. Voice tip at D0/D7 (teaching states). Context-aware placeholder. <span style="color:var(--tx2)">Voice mic should be primary CTA for Seg C/D. Text for Seg B.</span></div>
+      <div style="margin-top:8px;"><b style="color:var(--am)">Card ordering rule:</b> Urgency first (Updates), then unfinished (Continue), then value proof (Ribbon), then today's content (For You), then growth (Discover). Returning users see Recap before For You. Festival states can override: festival content takes hero position.</div>
+    </div></div>
+    <div class="hier-item" style="border-color:var(--or)" onclick="toggleCard(this)"><h4>Gamification</h4><div class="hi-def">Incentivises habit-building behaviour — not just daily opens. Rewards = more value, not badges.</div><div class="hi-detail"><b>Behaviour-based streaks (not just daily):</b><br>· 2+ verticals interacted with in a week → "Explorer" milestone<br>· 3+ sessions in a week → consistent user signal (linked to Engaged stage definition)<br>· Domain-specific: rashifal 5/7 days, exam practice 5 sessions/week, adherence % for health<br>· Cricket prediction accuracy over a series, not per-match<br><br><b>Progress indicators:</b> Kundli completion %, exam readiness score, scheme tracker status — make investment visible.<br><br><b>Rewards:</b> Always more value, never tokens. 14-day streak → deeper kundli. Mock milestone → weak-topic extra set. Scheme completion → next eligible scheme surfaced.<br><br><b>Leaderboards:</b> Cricket prediction (social proof, IPL-seasonal). Study groups (mutual accountability). Not used for utility verticals (health, schemes — these are private).<br><br><b>Principle:</b> Gamification amplifies utility. It cannot substitute for it. Build repeatable value first.</div></div>
+    <div class="hier-item" style="border-color:var(--pk)" onclick="toggleCard(this)"><h4>N=1 Personalisation + NBA</h4><div class="hi-def">UCP warm-start → 4 memory types → 3 data tiers → individual model → NBA decisioning.</div><div class="hi-detail"><b>UCP:</b> language, city, rashi, device from Jio 1P. <b>Memory:</b> Profile, Procedural, Episodic, Extracted. <b>Tiers:</b> Cold (cohort) → Sparse (blended, 1-20 sessions) → Rich (N=1, 20+). <b>NBA at GA:</b> rule-based cohort logic evolving to signal-informed. Accepts HVA classes as action space — decides which HVA to fire, for whom, via which channel. <b>Platform capabilities:</b> Cross-session memory, task resume, context carry-forward — these enable loops, not define them. <b>Rule:</b> explicit beats inferred. Wrong memory worse than none.</div></div>
+  </div>
+</div>
+</div>
+
+<div class="div"></div>
+
+<!-- ===== VERTICALS ===== -->
+<div class="wrap" id="verticals">
+<div class="lbl">10 Verticals × Loop Types</div>
+<h2>Early Engagement vs Depth — by Vertical</h2>
+<div class="sub">Click any tab. Each vertical shows its loop type, early actions (first 7 days), and depth actions (D7+).</div>
+
+<div class="vtabs" id="vtabs">
+  <div class="vtab on" onclick="sv('astrology',this)">Astrology</div>
+  <div class="vtab" onclick="sv('devotion',this)">Devotion</div>
+  <div class="vtab" onclick="sv('cricket',this)">Cricket</div>
+  <div class="vtab" onclick="sv('news',this)">News</div>
+  <div class="vtab" onclick="sv('health',this)">Health</div>
+  <div class="vtab" onclick="sv('careers',this)">Jobs & Careers</div>
+  <div class="vtab" onclick="sv('govt',this)">Govt Services</div>
+  <div class="vtab" onclick="sv('ent',this)">Entertainment</div>
+  <div class="vtab" onclick="sv('local',this)">Local Services</div>
+  <div class="vtab" onclick="sv('asst',this)">Daily Assistant</div>
+</div>
+
+<div id="vp-astrology" class="vpanel on" style="border-color:var(--pur)"><h3 style="color:var(--pur)">Astrology <span style="font-size:10px;color:var(--tx2);font-weight:400;">· Daily Loop · "Aaj ka din kaisa rahega?"</span></h3><div class="vcols"><div class="vcol"><h5 style="color:var(--gr)">Early (D0–D7)</h5><p>1st personalised rashifal (VR). Daily PN opt-in (Commit). Share card to family (Distrib). DOB+POB at D3 (Invest→kundli 40%). Streak starts. Upaay card post-reading.</p></div><div class="vcol"><h5 style="color:var(--bl)">Depth (D7+)</h5><p>Kundli deepening (gotra, family). Muhurat planning. Janmpatri. Kundli matching. Weekly forecast. Monthly planetary view. Progress: kundli completion rising. Streak reward: more value.</p></div></div><div style="font-size:10px;color:var(--tx2);margin-top:8px"><b style="color:var(--bl)">Growth:</b> Rashifal card → family WA → recipient opens same language → installs. <b style="color:var(--or)">Streak:</b> Daily 5/7. Reward = deeper kundli at milestones.</div></div>
+
+<div id="vp-devotion" class="vpanel" style="border-color:var(--or)"><h3 style="color:var(--or)">Devotion <span style="font-size:10px;color:var(--tx2);font-weight:400;">· Daily + Event Loop · "Aaj kaunsa vrat hai?"</span></h3><div class="vcols"><div class="vcol"><h5 style="color:var(--gr)">Early (D0–D7)</h5><p>Correct tithi/aarti (VR). Vrat/festival reminders (Commit). Regional prefs, gotra (Invest). Share festival greeting (Distrib). Seva/mantra streak. Live darshan.</p></div><div class="vcol"><h5 style="color:var(--bl)">Depth (D7+)</h5><p>Complex puja vidhi. Temple-specific darshan. Prasad delivery. Seasonal flows (Navratri, Diwali). Daily aarti library. Family-shareable devotional content. Festival preparation multi-day.</p></div></div><div style="font-size:10px;color:var(--tx2);margin-top:8px"><b style="color:var(--bl)">Growth:</b> Darshan/prasad share to parents → gift ritual loop. Festival greetings → family forward. <b style="color:var(--or)">Streak:</b> Seva/mantra 4/7 weekly consistency. <b>Ref:</b> Sri Mandir — digitised existing rituals.</div></div>
+
+<div id="vp-cricket" class="vpanel" style="border-color:var(--gr)"><h3 style="color:var(--gr)">Cricket <span style="font-size:10px;color:var(--tx2);font-weight:400;">· Event Loop · "Score kya hai?"</span></h3><div class="vcols"><div class="vcol"><h5 style="color:var(--gr)">Early</h5><p>Live score in Hindi (VR). Follow team (Commit). First prediction (Invest). Scorecard share mid-match (Distrib — peak virality). Leaderboard entry.</p></div><div class="vcol"><h5 style="color:var(--bl)">Depth</h5><p>Prediction history + accuracy. Fantasy hints. Group pools via WA. Series leaderboard. Local language commentary. Post-match analysis. Player form tracker.</p></div></div><div style="font-size:10px;color:var(--tx2);margin-top:8px"><b style="color:var(--bl)">Growth:</b> Prediction → WA card → friends join pool → leaderboard → everyone returns. <b style="color:var(--or)">Streak:</b> Seasonal (IPL intense). Off-season → News bridge. <b>Ref:</b> Dream11 — event urgency.</div></div>
+
+<div id="vp-news" class="vpanel" style="border-color:var(--cy)"><h3 style="color:var(--cy)">News <span style="font-size:10px;color:var(--tx2);font-weight:400;">· Daily Loop · "Yeh WA forward sach hai kya?"</span></h3><div class="vcols"><div class="vcol"><h5 style="color:var(--gr)">Early</h5><p>Fact-check or personal-impact news (VR). Digest subscription (Commit). Topic preferences (Invest). Share fact-check card (Distrib).</p></div><div class="vcol"><h5 style="color:var(--bl)">Depth</h5><p>Saved sources. Topic tracking. Market/EMI impact alerts. Policy→Scheme bridge. AI podcast. Audio news in regional language. Breaking news alerts.</p></div></div><div style="font-size:10px;color:var(--tx2);margin-top:8px"><b style="color:var(--bl)">Growth:</b> Fact-check card → WA forward chain → trust-led acquisition. <b>Note:</b> Generic news is crowded. Differentiation = personal-impact + fact-check.</div></div>
+
+<div id="vp-health" class="vpanel" style="border-color:var(--rd)"><h3 style="color:var(--rd)">Health & Wellbeing <span style="font-size:10px;color:var(--tx2);font-weight:400;">· Task Loop · "Dose miss ho gaya, kya karun?"</span></h3><div class="vcols"><div class="vcol"><h5 style="color:var(--gr)">Early</h5><p>Prescription scan → schedule (VR). Dose reminders (Commit — fires fast here, user WANTS it). Track taken/skipped. Missed dose 60m follow-up.</p></div><div class="vcol"><h5 style="color:var(--bl)">Depth</h5><p>Family profiles (Invest). Refill tracking. Symptom triage. Health nudges. Women's health. Elder-care. Cross-domain: govt health schemes. Adherence history.</p></div></div><div style="font-size:10px;color:var(--tx2);margin-top:8px"><b style="color:var(--or)">Streak:</b> Adherence %. Missed ≠ broken — logged, not punished. <b style="color:var(--bl)">Growth:</b> Family tracker → share with spouse/kids → household adoption.</div></div>
+
+<div id="vp-careers" class="vpanel" style="border-color:var(--bl)"><h3 style="color:var(--bl)">Jobs & Careers <span style="font-size:10px;color:var(--tx2);font-weight:400;">· Life Loop · "Kal interview hai, kya prepare karun?"</span></h3><div class="vcols"><div class="vcol"><h5 style="color:var(--gr)">Early</h5><p>Exam countdown (VR). Resume upload at D3 (Invest — early because goal-pursuit). Practice streak (Commit). English drill. Job alert setup.</p></div><div class="vcol"><h5 style="color:var(--bl)">Depth</h5><p>Weak-topic map. Adaptive difficulty. Mock score history. Study partner matching. Role-specific interview prep. Application tracker. Post-exam: first job → upskill → second income.</p></div></div><div style="font-size:10px;color:var(--tx2);margin-top:8px"><b style="color:var(--or)">Streak:</b> Weekly 5/wk. Reward = "Weak: Quant — extra set." <b style="color:var(--bl)">Growth:</b> Mock score → study group → mutual accountability. <b style="color:var(--rd)">Risk:</b> Post-exam value exhaustion if loop doesn't transition.</div></div>
+
+<div id="vp-govt" class="vpanel" style="border-color:var(--am)"><h3 style="color:var(--am)">Govt Services <span style="font-size:10px;color:var(--tx2);font-weight:400;">· Episodic · "Mujhe kuch mil sakta hai kya?"</span></h3><div class="vcols"><div class="vcol"><h5 style="color:var(--gr)">Early</h5><p>Scheme match with ₹ value (VR — strongest aha). Deadline alerts (Commit). Profile for auto-match (Invest). Doc checklist. Application guidance.</p></div><div class="vcol"><h5 style="color:var(--bl)">Depth</h5><p>Multi-scheme tracking. Family profiles. Status monitoring over weeks. Auto-match on new schemes. Policy change alerts. Bridge to Health/News.</p></div></div><div style="font-size:10px;color:var(--tx2);margin-top:8px"><b style="color:var(--bl)">Growth:</b> "Paise aa gaye" → tells 15 neighbours → strongest WOM in product. <b style="color:var(--or)">Streak:</b> N/A. Trust, not habit. 5-7d gaps normal. <b style="color:var(--rd)">Risk:</b> Wrong eligibility = permanent trust loss. Build carefully.</div></div>
+
+<div id="vp-ent" class="vpanel" style="border-color:var(--tx2)"><h3>Entertainment <span style="font-size:10px;color:var(--tx2);font-weight:400;">· Event Loop · Support vertical</span></h3><div class="vcols"><div class="vcol"><h5 style="color:var(--gr)">Early</h5><p>Personalised recommendation (VR). Follow show/actor (Commit). Share reco card (Distrib). Post-task "unwind" moment.</p></div><div class="vcol"><h5 style="color:var(--bl)">Depth</h5><p>Taste profile. Watchlist. Release calendar. Review summaries. Cross-domain → News. Social watch-party moments.</p></div></div><div style="font-size:10px;color:var(--tx2);margin-top:8px"><b>Role:</b> Drives approachability. Not a primary retention wedge. Best as post-task reward and cross-domain bridge.</div></div>
+
+<div id="vp-local" class="vpanel" style="border-color:var(--tx2)"><h3>Local Services <span style="font-size:10px;color:var(--tx2);font-weight:400;">· Episodic · Trust-building utility</span></h3><div class="vcols"><div class="vcol"><h5 style="color:var(--gr)">Early</h5><p>Problem diagnosed + service connected (VR). Booking confirmation. Seasonal reminders (Commit — monsoon, festival cleaning).</p></div><div class="vcol"><h5 style="color:var(--bl)">Depth</h5><p>Address saved. Provider history. Cost comparison. Rating. Household maintenance calendar.</p></div></div><div style="font-size:10px;color:var(--tx2);margin-top:8px"><b>Role:</b> Earns "ask here first" trust. Low frequency, high per-session value. Not a habit vertical.</div></div>
+
+<div id="vp-asst" class="vpanel" style="border-color:var(--tx2)"><h3>Daily Assistant / Life Companion <span style="font-size:10px;color:var(--tx2);font-weight:400;">· On-demand · The connective tissue</span></h3><div class="vcols"><div class="vcol"><h5 style="color:var(--gr)">Early</h5><p>Helpful answer (VR). Hard to create Commit/Invest from ad-hoc queries. "Proof of intelligence" — builds trust for vertical exploration.</p></div><div class="vcol"><h5 style="color:var(--bl)">Depth</h5><p>Conversation memory. Personal preferences. Writing style. The intelligence layer that stitches verticals. "Today for Me" is the orchestration surface.</p></div></div><div style="font-size:10px;color:var(--tx2);margin-top:8px"><b>Role:</b> Not a retention wedge itself. The intelligence that makes every other vertical personalised and connected.</div></div>
+</div>
+
+<div class="div"></div>
+
+<!-- ===== LIFECYCLE ===== -->
+<div class="wrap" id="lifecycle">
+<div class="lbl">Lifecycle × Building Blocks</div>
+<h2>Four Stages — What Fires When</h2>
+<div class="note"><b>Trailing 7-day window:</b> Onboarded = 0 queries. Activated = 1st query. Engaged = ≥2 sessions &lt;3d. Retained = ≥3 sessions ≥3d. D0 ≈ Stage 1. D1-D7 ≈ Stage 2. D7-D14 ≈ Stage 3. D14+ ≈ Stage 4.</div>
+
+<div class="lc-flow">
+  <div class="lc" style="border-color:var(--tx)"><h4>Onboarded → Activated</h4><div class="ld">D0 · First task + hook · &lt;90s</div><div class="lb"><span class="tag tag-p">VR (must)</span> <span class="tag tag-p">Commit (ideal)</span><br><span class="tag tag-a">No hooks yet — in-app only</span><br><span class="tag tag-c">Homepage: persona-first</span><br><span class="tag tag-r">Bar: activation, D1 return</span></div></div>
+  <div class="lc" style="border-color:var(--gr)"><h4>Activated → Engaged</h4><div class="ld">D1-D7 · Habit seed</div><div class="lb"><span class="tag tag-p">Commit (critical)</span> <span class="tag tag-k">Invest if natural</span><br><span class="tag tag-a">Scheduled + Task hooks</span> <span class="tag tag-o">Streak starts</span><br><span class="tag tag-c">Homepage: "Today" grows</span><br><span class="tag tag-r">Bar: hook rate, D7, streak %</span></div></div>
+  <div class="lc" style="border-color:var(--bl)"><h4>Engaged → Retained</h4><div class="ld">D7-D14 · Moat</div><div class="lb"><span class="tag tag-k">Investment</span> <span class="tag tag-c">Expansion</span> <span class="tag tag-b">Distribution</span><br><span class="tag tag-a">Event hooks</span> <span class="tag tag-o">Leaderboard</span><br><span class="tag tag-c">Homepage: "Today for Me"</span><br><span class="tag tag-r">Bar: multi-domain %, invest</span></div></div>
+  <div class="lc" style="border-color:var(--pur)"><h4>Retained</h4><div class="ld">D14+ · Compound</div><div class="lb"><span class="tag tag-p">All 5 HVAs</span> <span class="tag tag-b">Distrib = growth</span><br><span class="tag tag-o">Milestones → more value</span><br><span class="tag tag-c">Homepage = "Today for Me"</span><br><span class="tag tag-r">Bar: DAU/MAU, share, churn</span></div></div>
+</div>
+
+<div class="decay"><b>Decay:</b> 7d → Re-engage (task-specific WA if has tasks; one content WA if not; max 3 then stop). 30d → Dormant (1/week drumbeat). 90d → Churned. <b>Rule: every intervention has a stop condition.</b></div>
+</div>
+
+<div class="div"></div>
+
+<!-- ===== RE-ENGAGEMENT & PRE-CHURN ===== -->
+<div class="wrap" id="reengage">
+<div class="lbl">When the loop breaks</div>
+<h2>Re-engagement &amp; Pre-churn Capture</h2>
+<div class="sub">The lifecycle has a forward path and a decay path. This section owns what happens when a user drifts — the interventions, the channels, and critically, when to stop.</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+  <div style="background:var(--s1);border-radius:8px;padding:14px;border-left:3px solid var(--am);">
+    <div style="font-size:11px;font-weight:700;color:var(--am);margin-bottom:6px;">User with active tasks goes silent (3-7 days)</div>
+    <div style="font-size:10px;color:var(--tx);line-height:1.6;">Highest-ROI re-engagement. Send the value, not a reminder — today's rashifal, the scheme deadline, the dose they missed. The content IS the re-engagement.<br><br><span class="tag tag-a">Channel: WA</span> <span class="tag tag-p">Task-triggered</span><br><span style="font-size:9px;color:var(--tx2)">Stop: 3 ignored WA messages → accept drift. Do not increase frequency.</span></div>
+  </div>
+  <div style="background:var(--s1);border-radius:8px;padding:14px;border-left:3px solid var(--rd);">
+    <div style="font-size:11px;font-weight:700;color:var(--rd);margin-bottom:6px;">User without tasks goes silent (3-7 days)</div>
+    <div style="font-size:10px;color:var(--tx);line-height:1.6;">Much harder — no hook to pull. One interest-based PN (strongest signal from session history). If ignored, one WA attempt with time-sensitive content. Then stop.<br><br><span class="tag tag-a">Channel: PN → one WA</span> <span class="tag tag-o">Interest-inferred</span><br><span style="font-size:9px;color:var(--tx2)">Stop: one PN + one WA. No commitment was earned, so no right to persist.</span></div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+  <div style="background:var(--s1);border-radius:8px;padding:14px;border-left:3px solid var(--or);">
+    <div style="font-size:11px;font-weight:700;color:var(--or);margin-bottom:6px;">Frequency declining (was daily, now every 3-5 days)</div>
+    <div style="font-size:10px;color:var(--tx);line-height:1.6;">Batch risk score rising. Surface value in primary domain via PN first — don't escalate to WA yet. If primary domain content doesn't arrest decline, surface a new capability or adjacent content.<br><br><span class="tag tag-a">Channel: PN</span> <span class="tag tag-p">Domain-specific value</span><br><span style="font-size:9px;color:var(--tx2)">If content freshness is the cause (rashifal feels templated), the fix is content quality — not more notifications.</span></div>
+  </div>
+  <div style="background:var(--s1);border-radius:8px;padding:14px;border-left:3px solid var(--pk);">
+    <div style="font-size:11px;font-weight:700;color:var(--pk);margin-bottom:6px;">Task completed, no follow-on commitment (value exhaustion)</div>
+    <div style="font-size:10px;color:var(--tx);line-height:1.6;">A design failure in Stage 2, not fixable in Stage 3. If the user checked scheme eligibility and got the answer but no deadline alerts were set, there's no structural return reason. Prevention: every task arc must include a commitment moment before resolution.<br><br><span class="tag tag-k">Design debt</span><br><span style="font-size:9px;color:var(--tx2)">No downstream intervention compensates for a missing commitment HVA.</span></div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+  <div style="background:var(--s1);border-radius:8px;padding:14px;border-left:3px solid var(--rd);">
+    <div style="font-size:11px;font-weight:700;color:var(--rd);margin-bottom:6px;">User mutes notifications or deletes a task</div>
+    <div style="font-size:10px;color:var(--tx);line-height:1.6;">The user just told you to stop. Do NOT send more. In-app on next visit: "Notifications adjust karein?" Offer control, not persuasion. Sending a re-enable nudge after a mute is the fastest path to an uninstall.<br><br><span class="tag tag-r">Respect the signal</span> <span class="tag tag-c">In-app only</span></div>
+  </div>
+  <div style="background:var(--s1);border-radius:8px;padding:14px;border-left:3px solid var(--tx2);">
+    <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:6px;">Dormant 14+ days → win-back</div>
+    <div style="font-size:10px;color:var(--tx);line-height:1.6;">Festival-anchored content if seasonal ("Navratri vrat schedule ready hai"). Capability drumbeat if new features launched ("JBIQ ne nayi cheez seekhi"). Max 1/week on WA. Only if user had active tasks when they went dormant. After 3 ignored: stop. Accept churn.<br><br><span class="tag tag-a">WA 1/week max</span> <span class="tag tag-o">Calendar-anchored</span><br><span style="font-size:9px;color:var(--tx2)">90+ days or uninstall = churned. No further intervention.</span></div>
+  </div>
+</div>
+
+<div style="background:var(--s1);border-radius:8px;padding:12px 16px;border:1px solid rgba(239,68,68,0.3);font-size:11px;color:var(--tx);line-height:1.6;">
+  <b style="color:var(--rd);">The governing principle:</b> every intervention has a stop condition. The cost of over-nudging — notification mute, WA block, uninstall, trust erosion — exceeds the cost of accepting churn. Guardrails measured alongside retention: opt-out rate, mute rate, uninstall rate. A "retention win" that increases opt-out rate is not a win.
+</div>
+</div>
+
+<div class="div"></div>
+<div class="wrap" id="journeys">
+<!-- ===== JOURNEYS ===== -->
+<div class="wrap" id="journeys">
+<div class="lbl">Part 2 · Grounded Journeys</div>
+<h2>D0 to D30 — Three Users</h2>
+<div class="sub">Each journey is told as a story, not a log. Tags connect back to the building blocks above. Lifecycle stage shown at each moment.</div>
+
+<div class="jny">
+  <div class="jh"><div class="jn">Kavita</div><div class="jm">38 · Nashik · Seg C · Astro+Devotion · Daily Loop</div></div>
+  <div class="jctx"><b>Today without JBIQ:</b> Kavita checks Drik Panchang every morning for tithi before her puja. Gets generic rashifal from a family WhatsApp group — same one forwarded to 40 people. When a big decision comes up — a wedding date, a property purchase — she pays the local pandit ₹500-2,000 for a kundli reading. Her phone is a budget Android on 4G. She types slowly in Hindi, prefers voice notes on WhatsApp. Two school-age kids, elderly mother-in-law, husband works in Pune.</div>
+  <div class="tl">
+    <div class="ti"><div class="td" style="border-color:var(--gr);background:var(--gr)"></div><div class="tday" style="color:var(--gr)">D0 · 4:45 PM · Onboarded → Activated</div><div class="ttl">Her sister sends something different</div><div class="tbody">Kavita's sister forwards a rashifal card from JBIQ on WhatsApp — it has her sister's rashi, in Marathi, with a personal upaay. Kavita taps the link out of curiosity, installs, and registers with Phone + OTP (the same pattern she knows from WhatsApp). The app already knows she speaks Hindi, lives in Nashik, and her rashi is Kumbh — all from her Jio profile. The home screen shows Astro Companion first. She taps, reads her rashifal — it's personalised to Kumbh, in Hindi, with a specific upaay for the day. She screenshots it and sends it to her family group. A prompt appears: "Kal ka bhi dekhein? Roz subah 6 baje." She taps yes. In under three minutes, she's experienced value, shared it, and set a daily hook.</div><div class="ttags"><span class="tag tag-p">Value Realisation ✓</span><span class="tag tag-b">Distribution ✓</span><span class="tag tag-p">Commitment ✓</span><span class="tag tag-c">UCP warm-start</span></div></div>
+
+    <div class="ti"><div class="td" style="border-color:var(--gr);background:var(--gr)"></div><div class="tday" style="color:var(--gr)">D1 · 6:00 AM · Activated → Engaged</div><div class="ttl">The hook fires before her morning puja</div><div class="tbody">At 6 AM, a push notification arrives: "Kumbh — aaj shubh din hai. Rashifal dekhein." She taps it while the chai is brewing. Reads today's rashifal and the upaay card — "Aaj Shivling pe jal chadhayein." A prompt suggests panchang, but she's not interested yet. The app notes this and won't ask again for three sessions. Streak counter shows Day 2. The daily loop has started — not because the app forced it, but because her morning routine now has a new 30-second step.</div><div class="ttags"><span class="tag tag-p">VR (repeat) ✓</span><span class="tag tag-o">Streak: Day 2</span><span class="tag tag-a">Scheduled hook</span><span class="tag tag-c">Cross-domain declined → suppressed</span></div></div>
+
+    <div class="ti"><div class="td" style="border-color:var(--bl);background:var(--bl)"></div><div class="tday" style="color:var(--bl)">D3 · Engaged (single domain)</div><div class="ttl">She trusts it enough to share her birthday</div><div class="tbody">Third morning, third rashifal. The reading finishes and a gentle prompt appears: "Janam tithi batayein — personalised kundli ready hogi." This wasn't asked on Day 0 or Day 1 — three consecutive readings have built just enough micro-trust. Kavita enters her date and place of birth. Thirty seconds later, a basic kundli appears. She screenshots it immediately. The kundli is 40% complete — a progress bar shows she can deepen it with gotra and family details later. This data now lives only in JBIQ. Rebuilding it elsewhere means starting over.</div><div class="ttags"><span class="tag tag-k">Investment ✓ (DOB+POB)</span><span class="tag tag-o">Kundli 40% — progress visible</span><span class="tag tag-a">Timing: post 3rd reading, not 1st</span></div></div>
+
+    <div class="ti"><div class="td" style="border-color:var(--bl);background:var(--bl)"></div><div class="tday" style="color:var(--bl)">D7 · Engaged → Multi-domain</div><div class="ttl">A festival she almost forgot</div><div class="tbody">After her rashifal, an in-app card appears: "Aaj Pradosh Vrat hai. Shiv puja vidhi dekhein?" It's not a push notification — just a card inside the app. The suggestion is contextually right (Kumbh rashi → Shiv affinity) and calendar-accurate (Pradosh Vrat is today). She taps, follows the step-by-step puja vidhi, and sets reminders for upcoming vrats. She's now using two domains — astrology and devotion — with active tasks in both. The streak counter hits 7 and shows a reward: "7 din se rashifal — aapka hafta khaas shubh hai." More value, not a badge.</div><div class="ttags"><span class="tag tag-c">Expansion ✓ (2nd domain)</span><span class="tag tag-p">Commitment ✓ (vrat reminders)</span><span class="tag tag-g">Event-triggered, in-app only</span><span class="tag tag-o">Streak 7 → reward</span></div></div>
+
+    <div class="ti"><div class="td" style="border-color:var(--pur);background:var(--pur)"></div><div class="tday" style="color:var(--pur)">D14 · Approaching Retained</div><div class="ttl">Her mother needs help — Kavita knows where to go</div><div class="tbody">Kavita's mother-in-law asks about the Aadhaar-PAN link deadline everyone's been talking about. Kavita doesn't search Google or ask in a WhatsApp group. She opens JBIQ — it's already part of her morning — and asks about government schemes for her mother-in-law. JBIQ matches three schemes with actual rupee values. She saves her mother-in-law's profile and enables deadline alerts. No one prompted this. No notification led her here. Fourteen days of consistent daily value built enough trust that JBIQ became her first instinct when a new need arose.</div><div class="ttags"><span class="tag tag-c">Expansion ✓ (3rd domain, organic)</span><span class="tag tag-p">VR (Govt Schemes)</span><span class="tag tag-k">Investment (mother-in-law's profile)</span></div></div>
+
+    <div class="ti"><div class="td" style="border-color:var(--pur);background:var(--pur)"></div><div class="tday" style="color:var(--pur)">D30 · Retained</div><div class="ttl">She can't imagine her morning without it</div><div class="tbody">Kavita's morning now starts the same way every day: chai, JBIQ, puja. Her homepage shows today's rashifal, the Ekadashi vrat reminder, and her mother-in-law's PM-KISAN deadline — all on one screen. Her kundli is 70% complete. Three domains, four active tasks, 25 days on the streak. If someone suggested switching to another app, she'd have to ask: will it know my kundli? My vrat calendar? My mother-in-law's scheme deadlines? The answer is no. That's the moat.</div><div class="ttags"><span class="tag tag-p">All 5 HVAs ✓</span><span class="tag tag-o">Streak: 25 days</span><span class="tag tag-b">Distribution ongoing</span><span class="tag tag-k">Compound switching cost</span></div></div>
+  </div>
+</div>
+
+<div class="jny">
+  <div class="jh"><div class="jn">Ramesh</div><div class="jm">44 · Gorakhpur · Seg C · Govt Schemes · Episodic</div></div>
+  <div class="jctx"><b>Today without JBIQ:</b> Ramesh runs a kirana store in Gorakhpur. When he hears about a government scheme — always through a WhatsApp forward or a neighbour — he pays a local middleman ₹200-500 to "help" with the paperwork. Half the time the information is wrong. He doesn't type; he speaks. Hindi only. His phone is shared with his wife and teenage son.</div>
+  <div class="tl">
+    <div class="ti"><div class="td" style="border-color:var(--gr);background:var(--gr)"></div><div class="tday" style="color:var(--gr)">D0 · Activated</div><div class="ttl">He asks the question he's been paying middlemen to answer</div><div class="tbody">A neighbouring shopkeeper showed him the app. Ramesh speaks into it: "Meri dukaan ke liye koi sarkari yojana hai kya?" JBIQ asks his age, income range, and location — conversationally, in Hindi, via voice. Thirty seconds later: "Aap 4 yojanaon ke liye eligible hain. ₹87,000 saal ka." He stares at the number. This is more than he's ever been told he qualifies for. And nobody charged him ₹500 for it.</div><div class="ttags"><span class="tag tag-p">Value Realisation ✓</span><span class="tag tag-o">Anxiety resolved: "mujhe kuch mil sakta hai kya?"</span></div></div>
+    <div class="ti"><div class="td" style="border-color:var(--am);background:var(--am)"></div><div class="tday" style="color:var(--am)">D3</div><div class="ttl">He lets the app remember his deadlines</div><div class="tbody">"Document expiry aur deadline alerts chahiye?" Haan. A Scheme Eligibility Tracker is created. JBIQ now has a reason to bring him back — but on his terms, not daily. He won't open the app every morning. He'll come back when the next deadline approaches.</div><div class="ttags"><span class="tag tag-p">Commitment ✓</span><span class="tag tag-k">Investment (profile saved)</span></div></div>
+    <div class="ti"><div class="td" style="border-color:var(--am);background:var(--am)"></div><div class="tday" style="color:var(--am)">D12</div><div class="ttl">The task pulls him back</div><div class="tbody">A push notification: "PM-KISAN installment due 30 June. Documents ready?" He opens the app, checks his document checklist, confirms everything is in order. A single-purpose session — task-specific, no browsing. The episodic loop is working.</div><div class="ttags"><span class="tag tag-a">Task-triggered hook ✓</span></div></div>
+    <div class="ti"><div class="td" style="border-color:var(--rd);background:var(--rd)"></div><div class="tday" style="color:var(--rd)">D18 · PN fails → WA escalation</div><div class="ttl">His Xiaomi phone swallowed the notification</div><div class="tbody">A critical deadline is three days away: Aadhaar-PAN link. The push notification was sent but never delivered — Xiaomi's battery optimization killed it. After 20 minutes with no delivery confirmation, JBIQ sends a WhatsApp message with the actual deadline information — not "come back to the app," but the value itself: "Aadhaar-PAN link deadline 3 din mein. Abhi karein?" Ramesh sees it and acts.</div><div class="ttags"><span class="tag tag-r">OEM PN failure → WA escalation</span><span class="tag tag-a">Value delivery, not reminder</span></div></div>
+    <div class="ti"><div class="td" style="border-color:var(--bl);background:var(--bl)"></div><div class="tday" style="color:var(--bl)">D25</div><div class="ttl">The money arrives — and he becomes the marketing</div><div class="tbody">The PM-KISAN installment hits his bank account. That evening, Ramesh tells at least 15 people — neighbouring shopkeepers, relatives, his wife's family. "JBIQ ne bataya — maine apply kiya — paise aa gaye." No referral code, no share button. Just a man who got real money from a real scheme because an app told him he was eligible. This is the strongest organic acquisition loop in the entire product.</div><div class="ttags"><span class="tag tag-b">Distribution ✓ (WOM)</span><span class="tag tag-g">Growth loop: payout → word of mouth → installs</span></div></div>
+    <div class="ti"><div class="td" style="border-color:var(--pur);background:var(--pur)"></div><div class="tday" style="color:var(--pur)">D30</div><div class="ttl">Navratri opens a second world</div><div class="tbody">Navratri arrives. Ramesh's wife asks about the right puja vidhi for their regional tradition. He opens JBIQ — now a trusted tool — and tries the Devotional Companion. Prasad delivery for his mother. A second domain, opened naturally by the calendar, not by a cross-sell prompt.</div><div class="ttags"><span class="tag tag-c">Expansion ✓ (festival-driven)</span><span class="tag tag-a">Episodic rhythm: 5-7 day gaps are normal</span></div></div>
+  </div>
+</div>
+
+<div class="jny">
+  <div class="jh"><div class="jn">Priya</div><div class="jm">24 · Pune · Seg B · Career + Education · Life Loop</div></div>
+  <div class="jctx"><b>Today without JBIQ:</b> Priya is preparing for the SSC CGL exam. She uses Testbook's free tier and follows three coaching Telegram groups. She's tried Meta AI on WhatsApp for English practice. Her father runs a small shop — she's the first in her family to pursue a government job. She types in Hinglish, speaks Hindi, and wants to improve her English because she knows it matters in interviews. High aspiration, high anxiety about the outcome.</div>
+  <div class="tl">
+    <div class="ti"><div class="td" style="border-color:var(--gr);background:var(--gr)"></div><div class="tday" style="color:var(--gr)">D0 · Activated</div><div class="ttl">She finds an exam countdown that feels personal</div><div class="tbody">Priya taps Career and Skills, finds Govt Exam Discovery. The SSC CGL countdown starts — 47 days to go. A first practice set is delivered. Unlike Testbook's generic question bank, the questions adapt to her level. The goal is visible from the first session: a date, a number, a starting point.</div><div class="ttags"><span class="tag tag-p">Value Realisation ✓</span><span class="tag tag-o">Anxiety: "kya prepare karun?"</span></div></div>
+    <div class="ti"><div class="td" style="border-color:var(--pk);background:var(--pk)"></div><div class="tday" style="color:var(--pk)">D3 · Investment early</div><div class="ttl">She gives her resume because she wants better answers</div><div class="tbody">Unlike Kavita — where the Investment HVA was carefully delayed — Priya uploads her resume on Day 3 without being asked twice. She's in goal-pursuit mode. Giving JBIQ her education background and target role isn't extraction — it's equipping a tool she's already relying on. The timing rule for Investment HVAs is persona-dependent, not universal.</div><div class="ttags"><span class="tag tag-k">Investment ✓ (resume, education)</span><span class="tag tag-a">Goal-pursuit mode = earlier tolerance</span></div></div>
+    <div class="ti"><div class="td" style="border-color:var(--bl);background:var(--bl)"></div><div class="tday" style="color:var(--bl)">D7 · Streak established</div><div class="ttl">She can see herself getting better</div><div class="tbody">Seven days of 15-minute practice sessions. A Saturday voice mock interview: score 6 out of 10. The app identifies Quantitative Aptitude as her weakest area. This isn't a badge or a congratulation — it's a visible trajectory. She's getting better, and she can see where she's weak. That's what makes the streak motivating — not the number, but the progress underneath it.</div><div class="ttags"><span class="tag tag-p">Commitment ✓ (practice streak)</span><span class="tag tag-o">Progress: 6/10 + weak topic map</span></div></div>
+    <div class="ti"><div class="td" style="border-color:var(--cy);background:var(--cy)"></div><div class="tday" style="color:var(--cy)">D14 · Cross-domain</div><div class="ttl">Exam news finds her, she doesn't look for it</div><div class="tbody">An in-app card: "SSC CGL 2026 notification out. Details dekhein?" She taps into the News Guide for the first time — not for general headlines, but for exam-relevant information. Her news feed is now personalised to government exams and career topics. Not generic news; personal-impact news.</div><div class="ttags"><span class="tag tag-c">Expansion ✓ (News, exam-relevant)</span></div></div>
+    <div class="ti"><div class="td" style="border-color:var(--cy);background:var(--cy)"></div><div class="tday" style="color:var(--cy)">D21 · Third domain</div><div class="ttl">The mock exposed a gap — the app fills it</div><div class="tbody">After a mock interview where English fluency was flagged as a weak point, the English Learning module surfaces. Not random — directly connected to her mock performance. She starts 10-minute speaking drills alongside her exam prep. Two practice loops running in parallel now.</div><div class="ttags"><span class="tag tag-c">Expansion ✓ (3rd domain, contextual)</span></div></div>
+    <div class="ti"><div class="td" style="border-color:var(--pur);background:var(--pur)"></div><div class="tday" style="color:var(--pur)">D30 · Retained</div><div class="ttl">Her entire preparation lives here now</div><div class="tbody">Mock score: 8 out of 10 (up from 6). A detailed weak-topic map. English fluency improving. Three domains active. Daily practice streak. If she switched to Testbook or another platform, she'd lose her entire preparation history — mock scores, weak-topic analysis, the improvement trajectory that keeps her motivated. The one risk: when the exam is over, the loop must transition to interview prep → first job → upskilling, or value exhaustion will hit hard.</div><div class="ttags"><span class="tag tag-p">All core HVAs ✓</span><span class="tag tag-o">Mock 6→8</span><span class="tag tag-k">Switching cost: prep history</span><span class="tag tag-r">Post-exam: transition or exhaust</span></div></div>
+  </div>
+</div>
+
+<!-- Closing -->
+<div style="background:var(--s1);border:1px solid var(--pd);border-radius:10px;padding:20px 24px;margin:32px 0;">
+  <div style="font-size:18px;color:var(--wh);font-weight:700;margin-bottom:8px;">"Aaj mere liye kya important hai?"</div>
+  <div style="font-size:12px;color:var(--tx);line-height:1.6;">Every morning, this is the question JBIQ should answer — differently for Kavita (rashifal + vrat + scheme deadline), Ramesh (next deadline approaching), and Priya (practice set + mock prep + exam countdown). The product that answers this question well, every day, for hundreds of millions of Bharat users, becomes the daily operating layer. Not an AI chatbot they tried once. Not an app store category. A ritual.</div>
+  <div style="font-size:11px;color:var(--tx2);margin-top:12px;">The unit of success is not app opens. It is: did the user complete a task that matters to them, and does the product have a reason to bring them back tomorrow?</div>
+</div>
+</div>
+
+<div class="div"></div>
+
+<!-- ===== REFERENCES ===== -->
+<div class="wrap" id="references">
+<div style="font-size:10px;color:var(--tx2);padding:8px 0;">
+  <b style="color:var(--tx);">References:</b> Engagement Design deck · Consumer Engagement Strategy doc (v3) · Cohort &amp; Persona doc · Nir Eyal, <i>Hooked: How to Build Habit-Forming Products</i> · Sean Ellis &amp; Morgan Brown, <i>Hacking Growth</i> · Market research benchmarks
+</div>
+</div>
+
+<div class="sp"></div>
+<div style="text-align:center;padding:16px;color:var(--tx2);font-size:9px;">JBIQ · Engagement Operating Model · Ayush Prashant · CLM · May 2026</div>
+
+<script>
+// Toggle card — accordion within same parent group
+function toggleCard(el) {
+  var wasOpen = el.classList.contains('open');
+  var group = el.parentElement;
+  if (group) {
+    var items = group.querySelectorAll('.hier-item.open');
+    for (var i = 0; i < items.length; i++) {
+      if (items[i] !== el) items[i].classList.remove('open');
+    }
+  }
+  if (wasOpen) { el.classList.remove('open'); } else { el.classList.add('open'); }
+}
+
+// Vertical tabs
+function sv(id, tab) {
+  var tabs = document.querySelectorAll('.vtab');
+  var panels = document.querySelectorAll('.vpanel');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('on');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.remove('on');
+  tab.classList.add('on');
+  var p = document.getElementById('vp-' + id);
+  if (p) p.classList.add('on');
+}
+
+// Nav highlighting
+var secs = ['map','formula','hierarchy','verticals','lifecycle','reengage','journeys'];
+var nl = document.querySelectorAll('nav a');
+function un() {
+  var c = '';
+  for (var i = 0; i < secs.length; i++) {
+    var e = document.getElementById(secs[i]);
+    if (e && e.getBoundingClientRect().top <= 100) c = secs[i];
+  }
+  for (var i = 0; i < nl.length; i++) {
+    if (nl[i].dataset && nl[i].dataset.s === c) { nl[i].classList.add('on'); } else { nl[i].classList.remove('on'); }
+  }
+}
+window.addEventListener('scroll', un);
+un();
+</script>
+</body>
+</html>
